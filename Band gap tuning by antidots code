@@ -1,0 +1,307 @@
+close all;
+clear all;
+clc;
+fprintf('\t\t\t<<< Example 1: ARMCHAIR GRAPHENE NANORIBBON (E-K Diagram & Antidot)
+>>>\n\n\n');
+tic
+%% **************************** Initialization
+************************************
+n = 11; % Number of atoms at each ring of AGNR (Widths of ribbon)
+N_Ring_Unit = 8; % Number of rings in chosen unit cell
+N_Total_Plot = (n*N_Ring_Unit*3); % Number of atoms in the Plot
+% Basic Distances in Carbon Honey-Comb Structure
+a0 = 1.42; % Lattice Constant (in Agnestrom)
+d1=a0; % First-neighbours distance = a0
+d2=2.45951214; % Seconed-neighbours distance = a0*sqrt(3)
+d3=2.84; % Third-neighbours distance = (2*a0)
+mrg = 0.01; % Margin needed in calculations (small value)
+% Hopping Parameters
+eps=0; % On site potential for Carbon
+t1=-2.65; % First-neighbour interaction potential
+t2=0; % Second-neighbour interaction potential
+t3=0; % Third-neighbour interaction potential
+D_w = (n-1)*(a0*sqrt(3)/2); % Ribbon width
+Unit_L = N_Ring_Unit*1.5*a0;
+fprintf('Ribbon Width = %.2f nm\n\n',D_w/10);
+%% **************************** Make-Site
+************************************
+fprintf('Generating atoms sites...');
+% Assigning Geometric position to each atom
+atom_x=zeros(1,N_Total_Plot); % X site of atoms
+atom_y=zeros(1,N_Total_Plot); % Y site of atoms
+if mod(n,2) == 0
+ for j=1:(N_Ring_Unit/2)*3
+ for i=1:n/2
+ atom_x(2*(i-1)+1 +(j-1)*2*n)=0 + (j-1)*d1*3; atom_x(2*i +(j1)*2*n)=d1/2 + (j-1)*d1*3;
+ atom_y(2*(i-1)+1 +(j-1)*2*n)=(i-1)*d1*sqrt(3); atom_y(2*i +(j1)*2*n)=(i-.5)*d1*sqrt(3);
+
+ atom_x(2*(i-1)+1 +n +(j-1)*2*n)=d1*2 + (j-1)*d1*3; atom_x(2*i +n
++(j-1)*2*n)=d1*1.5 + (j-1)*d1*3;
+ atom_y(2*(i-1)+1 +n +(j-1)*2*n)=(i-1)*d1*sqrt(3); atom_y(2*i +n
++(j-1)*2*n)=(i-.5)*d1*sqrt(3);
+ end
+ end
+else
+ for j=1:(N_Ring_Unit/2)*3
+ for i=1:n/2
+ atom_x(2*(i-1)+1 +(j-1)*2*n)=0 + (j-1)*d1*3; atom_x(2*i +(j1)*2*n)=d1/2 + (j-1)*d1*3;
+ atom_y(2*(i-1)+1 +(j-1)*2*n)=(i-1)*d1*sqrt(3); atom_y(2*i +(j1)*2*n)=(i-.5)*d1*sqrt(3);
+
+ atom_x(2*(i-1)+1 +n +(j-1)*2*n)=d1*2 + (j-1)*d1*3; atom_x(2*i +n
++(j-1)*2*n)=d1*1.5 + (j-1)*d1*3;
+ atom_y(2*(i-1)+1 +n +(j-1)*2*n)=(i-1)*d1*sqrt(3); atom_y(2*i +n
++(j-1)*2*n)=(i-.5)*d1*sqrt(3);
+ end
+
+ atom_x(n +(j-1)*2*n)=0 + (j-1)*d1*3;
+ atom_y(n +(j-1)*2*n)=(floor(n/2))*d1*sqrt(3);
+
+ atom_x(2*n +(j-1)*2*n)=d1*2 + (j-1)*d1*3;
+ atom_y(2*n +(j-1)*2*n)=(floor(n/2))*d1*sqrt(3);
+ end
+end
+% Plotting the points!
+figure(1);
+for i=1:N_Total_Plot
+
+plot(atom_x(i),atom_y(i),'o','MarkerSize',8,'MarkerEdgeColor','b','MarkerFaceColor
+',[0,0,1]);hold on;
+ axis equal;
+end
+title('Pristine Lattice');
+% \\\\\\\\\\\\\\\\\\\\ Plot borders of unit cells ////////////////////
+line([(Unit_L - 0.5*d1) (Unit_L - 0.5*d1)],[-1.5
+(D_w+1.5)],'Color','k','LineWidth',1);
+line([(2*Unit_L - 0.5*d1) (2*Unit_L - 0.5*d1)],[-1.5
+(D_w+1.5)],'Color','k','LineWidth',1);
+fprintf('\t\t\t-> Done!\n\n');
+%% **************************** Make-Cut
+************************************
+fprintf('Making Cuts...');
+% \\\\\\\\\\\\\\\\\\\\ Square Regions ////////////////////
+Square_N = 1; % Number of square regions
+S_x = zeros(1,Square_N); % X
+S_y = zeros(1,Square_N); % Y
+S_l = zeros(1,Square_N); % Length
+S_w = zeros(1,Square_N); % Width
+% Define position and dimensions of first square cut
+S_x(1) = 7.81;
+S_y(1) = 6.149;
+S_l(1) = 4;
+S_w(1) = 4;
+%//// Seperate Atoms in Cut Regions and Update Site Matrix
+N_Unit = n*N_Ring_Unit; % The number of atoms in each unit cell
+N_Cut = 0; % The number of atoms within cut regions
+for j=1:Square_N
+
+ for i=1:N_Unit
+
+ % Coditions to distinguish the atoms are inside of cut regions
+ if atom_x(i)<(S_x(j)+S_l(j)/2) && atom_x(i)>(S_x(j)-S_l(j)/2) &&
+atom_y(i)<(S_y(j)+S_w(j)/2) && atom_y(i)>(S_y(j)-S_w(j)/2)
+
+ % Cut from first Left Unit Cell
+ atom_x(i) = -10;
+ atom_y(i) = -10;
+
+ % Cut from first Center Unit Cell
+ atom_x(i+N_Unit) = -10;
+ atom_y(i+N_Unit) = -10;
+
+ % Cut from first Right Unit Cell
+ atom_x(i+2*N_Unit) = -10;
+ atom_y(i+2*N_Unit) = -10;
+
+ N_Cut=N_Cut+1;
+ end
+ end
+end
+% Update number of staoms in Unit Cell after removing antidots!
+N_Unit = N_Unit - N_Cut;
+% Plotting updated lattice
+figure(2);
+for i=1:N_Total_Plot
+ if atom_x(i) > -.5
+
+
+plot(atom_x(i),atom_y(i),'o','MarkerSize',8,'MarkerEdgeColor','b','MarkerFaceColor
+',[0,0,1]);hold on;
+ axis equal;
+ end
+end
+title('Manipulated Lattice');
+% \\\\\\\\\\\\\\\\\\\\ Plot borders of unit cells ////////////////////
+line([(Unit_L - 0.5*d1) (Unit_L - 0.5*d1)],[-1.5
+(D_w+1.5)],'Color','k','LineWidth',1);
+line([(2*Unit_L - 0.5*d1) (2*Unit_L - 0.5*d1)],[-1.5
+(D_w+1.5)],'Color','k','LineWidth',1);
+% draw Square Antidot Regions
+for j=1:2
+ figure(j);
+ for i=1:Square_N
+ % Draw square cut for left unit cell
+ line([(S_x(i)-S_l(i)/2) (S_x(i)-S_l(i)/2)],[(S_y(i)-S_w(i)/2)
+(S_y(i)+S_w(i)/2)],'Color','g');
+ line([(S_x(i)-S_l(i)/2) (S_x(i)+S_l(i)/2)],[(S_y(i)+S_w(i)/2)
+(S_y(i)+S_w(i)/2)],'Color','g');
+ line([(S_x(i)+S_l(i)/2) (S_x(i)+S_l(i)/2)],[(S_y(i)+S_w(i)/2) (S_y(i)-
+S_w(i)/2)],'Color','g');
+ line([(S_x(i)+S_l(i)/2) (S_x(i)-S_l(i)/2)],[(S_y(i)-S_w(i)/2) (S_y(i)-
+S_w(i)/2)],'Color','g');
+
+ % Draw square cut for center unit cell
+ line([(Unit_L+S_x(i)-S_l(i)/2) (Unit_L+S_x(i)-S_l(i)/2)],[(S_y(i)-
+S_w(i)/2) (S_y(i)+S_w(i)/2)],'Color','g');
+ line([(Unit_L+S_x(i)-S_l(i)/2)
+(Unit_L+S_x(i)+S_l(i)/2)],[(S_y(i)+S_w(i)/2) (S_y(i)+S_w(i)/2)],'Color','g');
+ line([(Unit_L+S_x(i)+S_l(i)/2)
+(Unit_L+S_x(i)+S_l(i)/2)],[(S_y(i)+S_w(i)/2) (S_y(i)-S_w(i)/2)],'Color','g');
+ line([(Unit_L+S_x(i)+S_l(i)/2) (Unit_L+S_x(i)-S_l(i)/2)],[(S_y(i)-
+S_w(i)/2) (S_y(i)-S_w(i)/2)],'Color','g');
+
+ % Draw square cut for right unit cell
+ line([(2*Unit_L+S_x(i)-S_l(i)/2) (2*Unit_L+S_x(i)-S_l(i)/2)],[(S_y(i)-
+S_w(i)/2) (S_y(i)+S_w(i)/2)],'Color','g');
+ line([(2*Unit_L+S_x(i)-S_l(i)/2)
+(2*Unit_L+S_x(i)+S_l(i)/2)],[(S_y(i)+S_w(i)/2) (S_y(i)+S_w(i)/2)],'Color','g');
+ line([(2*Unit_L+S_x(i)+S_l(i)/2)
+(2*Unit_L+S_x(i)+S_l(i)/2)],[(S_y(i)+S_w(i)/2) (S_y(i)-S_w(i)/2)],'Color','g');
+ line([(2*Unit_L+S_x(i)+S_l(i)/2) (2*Unit_L+S_x(i)-S_l(i)/2)],[(S_y(i)-
+S_w(i)/2) (S_y(i)-S_w(i)/2)],'Color','g');
+ end
+end
+fprintf('\t\t\t-> Done!\n\n');
+%% ************************** Make-Hamiltonians
+*********************************
+fprintf('Making Hamiltonians...');
+% To save site of atoms in middle unit cell
+atom_x0 = zeros(1,N_Unit);
+atom_y0 = zeros(1,N_Unit);
+% To save site of atoms in left unit cell
+atom_xl = zeros(1,N_Unit);
+atom_yl = zeros(1,N_Unit);
+% To save site of atoms in right unit cell
+atom_xr = zeros(1,N_Unit);
+atom_yr = zeros(1,N_Unit);
+% Hamiltonian matrices
+H0=zeros(N_Unit,N_Unit);
+HL=zeros(N_Unit,N_Unit);
+HR=zeros(N_Unit,N_Unit);
+% Fill left,middle and right unitcells
+l=1;
+for i=1:(n*N_Ring_Unit)
+
+ if atom_x(i) > -.5
+ atom_xl(l)=atom_x(i);
+ atom_yl(l)=atom_y(i);
+
+ atom_x0(l)=atom_x(i+n*N_Ring_Unit);
+ atom_y0(l)=atom_y(i+n*N_Ring_Unit);
+
+ atom_xr(l)=atom_x(i+2*n*N_Ring_Unit);
+ atom_yr(l)=atom_y(i+2*n*N_Ring_Unit);
+
+ l=l+1;
+ end
+end
+% Generate H0
+for j=1:N_Unit
+ for i=1:N_Unit
+
+ dis = sqrt( (atom_x0(j)-atom_x0(i))^2 + (atom_y0(j)-atom_y0(i))^2 );
+
+ if dis < mrg
+ H0(j,i) = eps;
+
+ elseif (d1-mrg<dis) && (dis<d1+mrg)
+ H0(j,i) = t1;
+
+ elseif (d2-mrg<dis) && (dis<d2+mrg)
+ H0(j,i) = t2;
+
+ elseif (d3-mrg<dis) && (dis<d3+mrg)
+ H0(j,i) = t3;
+
+ else
+ H0(j,i) = 0;
+ end
+ end
+end
+% Generate HL
+for j=1:N_Unit
+ for i=1:N_Unit
+
+ dis = sqrt( (atom_x0(j)-atom_xl(i))^2 + (atom_y0(j)-atom_yl(i))^2 );
+
+ if dis < mrg
+ HL(j,i) = eps;
+
+ elseif (d1-mrg<dis) && (dis<d1+mrg)
+ HL(j,i) = t1;
+
+ elseif (d2-mrg<dis) && (dis<d2+mrg)
+ HL(j,i) = t2;
+
+ elseif (d3-mrg<dis) && (dis<d3+mrg)
+ HL(j,i) = t3;
+
+ else
+ HL(j,i) = 0;
+ end
+ end
+end
+% Generate HR
+for j=1:N_Unit
+ for i=1:N_Unit
+
+ dis = sqrt( (atom_x0(j)-atom_xr(i))^2 + (atom_y0(j)-atom_yr(i))^2 );
+
+ if dis < mrg
+ HR(j,i) = eps;
+
+ elseif (d1-mrg<dis) && (dis<d1+mrg)
+ HR(j,i) = t1;
+
+ elseif (d2-mrg<dis) && (dis<d2+mrg)
+ HR(j,i) = t2;
+
+ elseif (d3-mrg<dis) && (dis<d3+mrg)
+ HR(j,i) = t3;
+
+ else
+ HR(j,i) = 0;
+ end
+ end
+end
+fprintf('\t\t\t-> Done!\n\n');
+%% **************************** Make E-K Diagram
+************************************
+disp=[];
+p=1;
+for ka=-pi:2*pi/500:pi
+ HK=H0+HR*exp(1i*ka)+HL*exp(-1i*ka);
+ ee=eig(HK);
+ disp=[disp,ee];
+
+ % Is save to extract bandgap value
+ for j=1:length(ee)
+ if ee(j)>eps
+ g(p)=ee(j);
+ p=p+1;
+ end
+ end
+end
+% \\\\\\\\\\\\\\\\\\\\ Band Gap ////////////////////
+GAP=2*(min(g)-eps); if GAP< 1e-2 GAP=0; end
+% \\\\\\\\\\\\\\\\\\\\ Plot E-K diagram ////////////////////
+figure();
+plot(-pi:2*pi/500:pi,disp);
+title('Band Structure');
+xlabel('Ka');
+ylabel('Energy(ev)');
+string = sprintf('BG = %.2f eV, %d-AGNR',GAP,n);
+legend(string);
+fprintf('\t\t-> done, Pristine Band Gap = %.2f eV\n\n',GAP);
+fprintf('\n\n-> Done!\n\n');
+toc
+fprintf('\n\n\n\t\t\t<<< Simulation Is Complete >');

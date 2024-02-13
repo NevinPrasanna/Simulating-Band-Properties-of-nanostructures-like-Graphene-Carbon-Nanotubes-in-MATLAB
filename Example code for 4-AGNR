@@ -1,0 +1,29 @@
+close all;
+clear all;
+clc;
+fprintf('\t\t\t<<< Example 1: 4-ARMCHAIR GRAPHENE NANORIBBON (E-K Diagram)
+>>>\n\n\n');
+tic
+%% **************************** Initialization
+************************************
+n = 4; % Number of atoms at each ring of AGNR (Widths of ribbon)
+N_Ring_Unit = 2; % Number of rings in chosen unit cell
+N_Total_Plot = (n*N_Ring_Unit*3); % Number of atoms in the Plot
+% Basic Distances in Carbon Honey-Comb Structure
+a0 = 1.42; % Lattice Constant (in Agnestrom)
+d1=a0; % First-neighbours distance = a0
+d2=2.45951214; % Seconed-neighbours distance = a0*sqrt(3)
+d3=2.84; % Third-neighbours distance = (2*a0)
+mrg = 0.01; % Margin needed in calculations (small value)
+% Hopping Parameters
+eps=0; % On site potential for Carbon
+t1=-2.65; % First-neighbour interaction potential
+t2=0; % Second-neighbour interaction potential
+t3=-0.27; % Third-neighbour interaction potential
+D_w = (n-1)*(a0*sqrt(3)/2); % Ribbon width
+Unit_L = N_Ring_Unit*1.5*a0;
+fprintf('Ribbon Width = %.2f nm\n\n',D_w/10);
+%% **************************** Make-Site
+************************************
+fprintf('Generating atoms sites...');
+% Assignin
